@@ -21,7 +21,6 @@ direction_map = {
 
 current_position = [0,0]
 current_direction = 0 # 0-N 1-E 2-S 3-W
-positions_visited = {"0,0": 1}
 
 def turn(direction, current_direction):
   current_direction += turn_map[direction]
