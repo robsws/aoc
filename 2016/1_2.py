@@ -25,7 +25,7 @@ positions_visited = {"0,0": 1}
 
 def done(strposition, positions_visited, current_position):
   if strposition in positions_visited:
-    print str(abs(current_position[0]) + abs(current_position[1]))
+    print(str(abs(current_position[0]) + abs(current_position[1])))
     return 1
   else:
     return 0
@@ -40,7 +40,7 @@ def turn(direction, current_direction):
 
 def move(distance, current_direction, current_position, positions_visited):
   for i in range(1, distance+1):
-    current_position = map(add, current_position, direction_map[current_direction])
+    current_position = list(map(add, current_position, direction_map[current_direction]))
     strposition = str(current_position[0])+","+str(current_position[1])
     if done(strposition, positions_visited, current_position):
       sys.exit()

@@ -33,7 +33,7 @@ def turn(direction, current_direction):
 
 def move(distance, current_direction, current_position):
   for i in range(1, distance+1):
-    current_position = map(add, current_position, direction_map[current_direction])
+    current_position = list(map(add, current_position, direction_map[current_direction]))
   return current_position
 
 for line in file:
@@ -44,4 +44,4 @@ for line in file:
     current_direction = turn(direction, current_direction)
     current_position = move(int(distance), current_direction, current_position)
     
-print str(abs(current_position[0])+abs(current_position[1]))
+print(str(abs(current_position[0])+abs(current_position[1])))
