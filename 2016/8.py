@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 import sys
 import re
+import time
 
 (prog, filename, width, height) = sys.argv
 file = open(filename,'r')
@@ -42,8 +43,10 @@ class Screen:
     return total
 
   def print_pixels(self):
+    for i in range(self.width * self.height):
+      print('\b')
     for y in range(self.height):
-      row = map(lambda x: '.' if x[y] == 0 else 'X', self.pixels)
+      row = map(lambda x: '.' if x[y] == 0 else '#', self.pixels)
       print(reduce(lambda a,b: a+b, row))
 
 screen = Screen(int(width), int(height))
@@ -62,7 +65,7 @@ for line in file:
         screen.rotate_row(int(index), int(amount))
       elif row_or_column == 'column':
         screen.rotate_column(int(index), int(amount))
-  print(line)
+  time.sleep(0.1)
   screen.print_pixels()
 
 print(screen.pixels_on())
