@@ -14,6 +14,6 @@ public class OutputBin : MonoBehaviour {
     public void GiveChip(GameObject chip) {
         chips.Add(chip);
         chip.transform.parent = transform;
-        chip.transform.localPosition = new Vector3(0f, 0f, 0f);
+        chip.transform.localPosition = new Vector3(0f, -0.5f, 0f);
     }
 }

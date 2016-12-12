@@ -8,7 +8,6 @@ public class Bot : MonoBehaviour {
 
     public int botId;
     public float movementSpeed;
-    public float rotateSpeed;
 
     private GameObject lowTarget;
     private GameObject highTarget;
@@ -16,6 +15,7 @@ public class Bot : MonoBehaviour {
     private GameObject leftClaw;
     private GameObject rightClaw;
     private IDText botIdText;
+    private Manager manager;
 
     private BotStatus status = BotStatus.IDLE;
     private bool deliveredLow = false;
@@ -23,6 +23,7 @@ public class Bot : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
+        manager = Manager.instance;
         chips = new List<GameObject>();
         leftClaw = transform.Find("LeftClaw").gameObject;
         rightClaw = transform.Find("RightClaw").gameObject;
@@ -44,10 +45,6 @@ public class Bot : MonoBehaviour {
             case BotStatus.DELIVER_HIGH:
                 currentTarget = highTarget;
                 break;
-        }
-        if (botId == 115) {
-            Debug.Log(status);
-            Debug.Log(currentTarget.GetComponent<Bot>().botId);
         }
         // Move towards target
         Vector3 toTarget = currentTarget.transform.position - transform.position;
@@ -77,10 +74,8 @@ public class Bot : MonoBehaviour {
         if (otherBot == null) {
             OutputBin otherOutput = obj.GetComponent<OutputBin>();
             otherOutput.GiveChip(chip);
-            Debug.Log("Bot " + botId.ToString() + " gives chip to output");
         } else {
             otherBot.GiveChip(chip);
-            Debug.Log("Bot " + botId.ToString() + " gives chip to bot "+otherBot.botId.ToString());
         }
     }
 
@@ -105,8 +100,6 @@ public class Bot : MonoBehaviour {
                     }
                 }
                 else {
-                    Debug.Log("no chips");
-                    Debug.Log(chips.Count);
                     status = BotStatus.IDLE;
                 }
             }
@@ -129,8 +122,6 @@ public class Bot : MonoBehaviour {
                     }
                 }
                 else {
-                    Debug.Log("no chips");
-                    Debug.Log(chips.Count);
                     status = BotStatus.IDLE;
                 }
             }
@@ -148,6 +139,17 @@ public class Bot : MonoBehaviour {
             // Reparent the chip to the right claw asnd position correctly
             chip.transform.parent = rightClaw.transform;
             chip.transform.localPosition = new Vector3(0f, 0.85f, 0f);
+            // Check if the question can be answered
+            int chip0Value = chips[0].GetComponent<Chip>().value;
+            int chip1Value = chips[1].GetComponent<Chip>().value;
+            if (
+                 (chip0Value == manager.answerLowChipValue && chip1Value == manager.answerHighChipValue) ||
+                 (chip1Value == manager.answerLowChipValue && chip0Value == manager.answerHighChipValue)
+               ) {
+                // Found the answer
+                Debug.Log(botId);
+                GetComponentInChildren<SpriteRenderer>().color = Color.red;
+            }
             // Chip capacity reached, start delivering chips
             status = BotStatus.DELIVER_LOW;
         }

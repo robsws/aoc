@@ -9,7 +9,7 @@ public class IDText : MonoBehaviour {
         // Set the sort order for the text correctly
         MeshRenderer IdTextMesh = transform.GetComponent<MeshRenderer>();
         IdTextMesh.sortingLayerName = "Bot";
-        IdTextMesh.sortingOrder = 2;
+        IdTextMesh.sortingOrder = 3;
     }
 	
 	// Update is called once per frame

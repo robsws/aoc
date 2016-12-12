@@ -7,15 +7,27 @@ using UnityEngine;
 
 public class Manager : MonoBehaviour {
 
+    public static Manager instance;
     public string inputFilename = @"Assets\Input\input.txt";
     public GameObject chipPrefab;
     public GameObject botPrefab;
     public GameObject outputPrefab;
+    public int answerLowChipValue;
+    public int answerHighChipValue;
 
     private Dictionary<int, GameObject> bots;
     private Dictionary<int, GameObject> outputs;
 
-	// Use this for initialization
+    void Awake () {
+        // Make this a singleton
+        if (instance == null) {
+            instance = this;
+        }
+        else if (instance != this) {
+            Destroy(gameObject);
+        }
+    }
+
 	void Start () {
         // Load in the file
         bots = new Dictionary<int, GameObject>();
