@@ -3,23 +3,24 @@ from copy import deepcopy
 import pprint
 import sys
 
-start_state_part1 = {
+start_state = {
   1: ['SG','SM','PG','PM'],
   2: ['TG','RG','RM','CG','CM'],
   3: ['TM'],
   4: [],
   'Elevator': 1
 }
-
-start_state_part2 = {
-  1: ['SG','SM','PG','PM','EG','EM','DG','DM'],
-  2: ['TG','RG','RM','CG','CM'],
-  3: ['TM'],
-  4: [],
-  'Elevator': 1
-}
-
 final_state_key = 'E41234CGCMPGPMRGRMSGSMTGTM'
+
+if sys.argv[1] == '2':
+  start_state = {
+    1: ['SG','SM','PG','PM','EG','EM','DG','DM'],
+    2: ['TG','RG','RM','CG','CM'],
+    3: ['TM'],
+    4: [],
+    'Elevator': 1
+  }
+  final_state_key = 'E41234CGCMDGDMEGEMPGPMRGRMSGSMTGTM'
 
 def valid_floor(items):
   # Check for M without matching G where a G of different type exists
@@ -104,11 +105,7 @@ def possible_next_states(current_state):
   return [reached_final, next_states]
 
 # Perform a breadth-first search through the possible moves
-states = []
-if sys.argv[1] == '2':
-  states.append(start_state_part2)
-else:
-  states.append(start_state_part1)
+states = [start_state]
 reached_final = False
 iterations = 0
 while not reached_final:
