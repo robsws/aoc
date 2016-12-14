@@ -20,15 +20,6 @@ def is_wall(coord):
       one_bits += 1
   return one_bits % 2 != 0
 
-for x in range(50):
-  line = ''
-  for y in range(50):
-    if is_wall([x,y]):
-      line += '#'
-    else:
-      line += '.'
-  print(line)
-
 def score(path):
   # The closer the path to the exit, the better (lower) the score
   return abs(target[0] - path['coord'][0]) + abs(target[1] - path['coord'][1])
@@ -74,11 +65,12 @@ def expand_path(path):
 paths = [
   {
     'length'   : 0,
-    'coord'    : [0,0],
+    'coord'    : [1,1],
     'visited'  : []
   }
 ]
 finished = False
+final_path = []
 
 while not finished:
   # print("****")
@@ -92,4 +84,16 @@ while not finished:
   for path in paths:
     if score(path) == 0:
       print(path)
+      final_path = path
       finished = True
+
+for y in range(50):
+  line = ''
+  for x in range(50):
+    if is_wall([x,y]):
+      line += '#'
+    elif [x,y] in final_path['visited']:
+      line += 'O'
+    else:
+      line += '.'
+  print(line)
