@@ -24,7 +24,10 @@ def score(path):
   # The closer the path to the exit, the better (lower) the score
   return (abs(target[0] - path['coord'][0]) + abs(target[1] - path['coord'][1]))*1000 + path['length']
 
+visited_coords = [[1,1]]
+
 def expand_path(path):
+  global visited_coords
   new_paths = []
   # At most three possible paths
   # Check each compass direction
@@ -34,6 +37,8 @@ def expand_path(path):
   west = [path['coord'][0] - 1, path['coord'][1]]
   # North
   if not is_wall(north) and north not in path['visited']:
+    if north not in visited_coords:
+      visited_coords.append(north)
     new_path = deepcopy(path)
     new_path['coord'] = north
     new_path['length'] += 1
@@ -41,6 +46,8 @@ def expand_path(path):
     new_paths.append(new_path)
   # South
   if not south[1] < 0 and not is_wall(south) and south not in path['visited']:
+    if south not in visited_coords:
+      visited_coords.append(south)
     new_path = deepcopy(path)
     new_path['coord'] = south
     new_path['length'] += 1
@@ -48,6 +55,8 @@ def expand_path(path):
     new_paths.append(new_path)
   # East
   if not is_wall(east) and east not in path['visited']:
+    if east not in visited_coords:
+      visited_coords.append(east)
     new_path = deepcopy(path)
     new_path['coord'] = east
     new_path['length'] += 1
@@ -55,6 +64,8 @@ def expand_path(path):
     new_paths.append(new_path)
   # West
   if not west[0] < 0 and not is_wall(west) and west not in path['visited']:
+    if west not in visited_coords:
+      visited_coords.append(west)
     new_path = deepcopy(path)
     new_path['coord'] = west
     new_path['length'] += 1
@@ -70,30 +81,14 @@ paths = [
   }
 ]
 finished = False
-final_path = []
 
-while not finished:
-  # print("****")
+while len(paths) > 0:
   best_path = reduce(lambda p1, p2: p1 if score(p1) < score(p2) else p2, paths)
-  # print("Best Path:")
-  # print(best_path)
-  paths.extend(expand_path(best_path))
+  new_paths = expand_path(best_path)
+  for path in new_paths:
+    if path['length'] == 50:
+      new_paths.remove(path)
+  paths.extend(new_paths)
   paths.remove(best_path)
-  # print("Paths:")
-  # print(paths)
-  for path in paths:
-    if path['coord'] == target:
-      print(path)
-      final_path = path
-      finished = True
-
-for y in range(50):
-  line = ''
-  for x in range(50):
-    if is_wall([x,y]):
-      line += '#'
-    elif [x,y] in final_path['visited']:
-      line += 'O'
-    else:
-      line += '.'
-  print(line)
+  
+print len(visited_coords)
