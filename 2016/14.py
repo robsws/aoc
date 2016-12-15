@@ -13,26 +13,32 @@ keys = []
 pending_keys = []
 index = 0
 
-while len(keys) < 64:
+while len(keys) < 100:
 
   plaintext = salt+str(index)
   ciphertext = hashlib.md5(plaintext.encode('utf-8')).hexdigest()
 
   # Update counters
+  keys_to_remove = []
   for key in pending_keys:
     key['count'] += 1
     if key['count'] > 1000:
-      pending_keys.remove(key)
+      keys_to_remove.append(key)
+  for key in keys_to_remove:
+    pending_keys.remove(key)
 
   # Find strings of 5 same characters
   matches = re.findall(repeat5_regex, ciphertext)
   if len(matches) > 0:
     for match in matches:
       chain = match
+      keys_to_remove = []
       for key in pending_keys:
         if key['char'] == chain[0]:
           keys.append(key)
-          pending_keys.remove(key)
+          keys_to_remove.append(key)
+      for key in keys_to_remove:
+        pending_keys.remove(key)
 
   # Find strings of 3 same characters
   match = re.search(repeat3_regex, ciphertext)
@@ -46,9 +52,9 @@ while len(keys) < 64:
     pending_keys.append(key)
   index += 1
 
-# sorted_keys = sorted(keys, key=lambda k: k['index'])
-# for i, key in enumerate(keys):
-#   print(i)
-#   print(key)
-# print("****")
-# print(sorted_keys[63])
+sorted_keys = sorted(keys, key=lambda k: k['index'])
+for i, key in enumerate(sorted_keys):
+  print(i)
+  print(key)
+print("****")
+print(sorted_keys[63])
