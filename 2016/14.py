@@ -2,6 +2,7 @@
 import sys
 import hashlib
 import re
+import time
 
 repeat3_regex = re.compile(r'000|111|222|333|444|555|666|777|888|999|aaa|bbb|ccc|ddd|eee|fff')
 repeat5_regex = re.compile(r'00000|11111|22222|33333|44444|55555|66666|77777|88888|99999|aaaaa|bbbbb|ccccc|ddddd|eeeee|fffff')
@@ -15,7 +16,7 @@ index = 0
 while len(keys) < 64:
 
   plaintext = salt+str(index)
-  ciphertext = hashlib.md5(plaintext).hexdigest()
+  ciphertext = hashlib.md5(plaintext.encode('utf-8')).hexdigest()
 
   # Update counters
   for key in pending_keys:
@@ -32,9 +33,6 @@ while len(keys) < 64:
         if key['char'] == chain[0]:
           keys.append(key)
           pending_keys.remove(key)
-          if index == 816:
-            print(key)
-            print(keys)
 
   # Find strings of 3 same characters
   match = re.search(repeat3_regex, ciphertext)
@@ -48,7 +46,9 @@ while len(keys) < 64:
     pending_keys.append(key)
   index += 1
 
-for key in sorted(keys, key=lambda k: k['index']):
-  print(key)
-print("****")
-print(keys[63])
+# sorted_keys = sorted(keys, key=lambda k: k['index'])
+# for i, key in enumerate(keys):
+#   print(i)
+#   print(key)
+# print("****")
+# print(sorted_keys[63])
