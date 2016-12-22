@@ -15,7 +15,6 @@ def solve_circle(elves):
     elf = (i+index) % no_of_elves
     if (i-offset) % 3 == 0 or (elf + 1 == digital_half and (no_of_elves % 3 == 1 or no_of_elves % 3 == 2)):
       next_elves.append(elves[elf])
-  new_dig_half = int(floor(len(next_elves)/2))
   next_elves = sorted(next_elves)
   return next_elves
   
