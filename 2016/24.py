@@ -4,13 +4,7 @@ import pprint
 from random import shuffle
 pp = pprint.PrettyPrinter(indent=4)
 file = open(sys.argv[1], 'r')
-# BST one location at at a time
-# Generate a new bot for each possible path
-# If you return to a previous point, delete the bot
-# If a bot finds a node already visited by another bot, delete the bot
-# If two bots end up on the same location, delete one of the bots
 
-# Start at the 0 and visit all non-0 numbers
 locations = {}
 maze = []
 for y, line in enumerate(file):
@@ -38,6 +32,9 @@ for i in range(1,9):
   for j in range(1,9):
     graph[i][j] = -1
 
+# Iterate the breadth first search
+# Don't revisit locations already visited or go outside the boundaries
+# Record each location found and return it
 def next_bots(start_loc, bots, visited):
   global graph
   locations_found = []
@@ -101,6 +98,8 @@ def next_bots(start_loc, bots, visited):
 finished = False
 total_distance = 0
 
+# First we generate a graph from the shortest paths between each node
+# This is done using a breadth first search. A* would be more efficient.
 for i in range(1,9):
   print("start: "+str(i))
   bots = [{'coord':locations[i], 'distance':0}]
@@ -113,7 +112,7 @@ for i in range(1,9):
 
 pp.pprint(graph)
 
-# Randomly pick paths until we get the best
+# Randomly pick paths and print each one that improves the total distance travelled
 shortest_distance = 10000000
 while True:
   locations_list = [1,2,3,4,5,6,7]
@@ -126,12 +125,3 @@ while True:
   if total_distance < shortest_distance:
     shortest_distance = total_distance
     print(shortest_distance)
-
-# graph_flat = {}
-# for i in range(1,9):
-#   for j in range(1,9):
-#     if j > i:
-#       graph_flat[str(i)+','+str(j)] = graph[i][j]
-
-# for i in sorted(graph_flat.items(), key=lambda x: x[1]):
-#   print(i)
