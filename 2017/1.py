@@ -1,8 +1,5 @@
 #!/usr/local/bin/python
 import sys
-import math
-import re
-from operator import add
 
 part = int(sys.argv[1])
 input_filename = sys.argv[2]
