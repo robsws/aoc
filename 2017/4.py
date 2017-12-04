@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 import sys
-from collections import defaultdict
 
 part = int(sys.argv[1])
 input_filename = sys.argv[2]
