@@ -15,7 +15,6 @@ while pc >= 0 and pc < len(instructions):
         instructions[oldpc] += 1
     else:
         instructions[oldpc] -= 1
-
     steps += 1
 print(pc)
 print(steps)
