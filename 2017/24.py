@@ -41,7 +41,8 @@ def search_combos(component, port, components_left):
     return best_sub_bridge
 
 bridges = []
-for component in components:
+components_with_zero = [c for c in components if 0 in c]
+for component in components_with_zero:
     next_components = deepcopy(components)
     next_components.remove(component)
     bridge1 = search_combos(component, 0, next_components)
