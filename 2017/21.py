@@ -71,14 +71,6 @@ for line in lines:
     expansion_rules[flip_horizontal(flip_vertical(rot3))] = rvalue
 
 # define expansion functions
-def split_four(pattern):
-    split_patterns = []
-    split_patterns.append((tuple(pattern[0][0:2]),tuple(pattern[1][0:2])))
-    split_patterns.append((tuple(pattern[0][2:4]),tuple(pattern[1][2:4])))
-    split_patterns.append((tuple(pattern[2][0:2]),tuple(pattern[3][0:2])))
-    split_patterns.append((tuple(pattern[2][2:4]),tuple(pattern[3][2:4])))
-    return split_patterns
-
 def join_patterns(patterns):
     joined_grid = []
     width = int(sqrt(len(patterns)))
@@ -97,12 +89,11 @@ def split_grid(joined_grid):
         split_num = 3
     else:
         print("there's a problem")
-    print(len(joined_grid), split_num)
     split_rows = []
     for row in joined_grid:
         split_rows.append(tuple([row[i:i+split_num] for i in range(0, len(row), split_num)]))
-    for col in range(len(split_rows[0])):
-        for bigrow in range(len(split_rows[0])):
+    for bigrow in range(len(split_rows[0])):
+        for col in range(len(split_rows[0])):
             pattern = []
             for row in range(split_num):
                 pattern.append(split_rows[bigrow*split_num + row][col])
@@ -136,6 +127,9 @@ for i in range(iterations):
     patterns = expand(patterns)
     print(get_amount_on(patterns))
 
+def print_grid(joined_grid):
+    for row in joined_grid:
+        print(''.join(row))
+
 # count number of pixels are on
-print(patterns)
 print(get_amount_on(patterns))
