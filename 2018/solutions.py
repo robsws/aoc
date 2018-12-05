@@ -86,10 +86,65 @@ def find_non_overlapping_claim(inputs):
             return ident
     return "No non-overlapping claim found."
 
+# Day Four Solutions
+def parse_guard_log(inputs):
+    inputs.sort()
+    input_regex = re.compile(r'\[([\d-]+) \d+:(\d+)\] (?:Guard #(\d+) begins shift|(falls asleep)|(wakes up))')
+    date_guards = dict()
+    minutes_asleep = defaultdict(set)
+    current_guard = -1
+    current_date = -1
+    for line in inputs:
+        (date, time, ident, asleep, wakes) = re.match(input_regex, line).groups()
+        if ident is not None:
+            # New shift
+            current_guard = int(ident)
+        elif asleep is not None:
+            date_guards[date] = current_guard
+            time_fell_asleep = int(time)
+        elif wakes is not None:
+            time_woken = int(time)
+            for t in range(time_fell_asleep, time_woken+1):
+                minutes_asleep[date].add(t)
+    for date in sorted(date_guards.keys()):
+        print(date,date_guards[date],minutes_asleep[date])
+    return (date_guards, minutes_asleep)
+
+def safest_minute_strat_one(inputs):
+    (date_guards, minutes_asleep) = parse_guard_log(inputs)
+    guard_total = defaultdict(int)
+    for date in date_guards.keys():
+        guard_total[date_guards[date]] += len(minutes_asleep[date])
+    sleepiest_guard = max(guard_total, key=guard_total.get)
+    guard_minute_totals = [0]*60
+    for minute in range(0, 60):
+        guard_minute_totals[minute] = sum([1 for d in [date for date in date_guards.keys() if date_guards[date] == sleepiest_guard] if minute in minutes_asleep[d]])
+    most_asleep = max(guard_minute_totals)
+    sleepiest_minute = guard_minute_totals.index(most_asleep)
+    return sleepiest_minute * sleepiest_guard
+
+def safest_minute_strat_two(inputs):
+    (date_guards, minutes_asleep) = parse_guard_log(inputs)
+    most_asleep = 0
+    sleepiest_minute = -1
+    sleepiest_guard = -1
+    for guard in sorted(list(set(date_guards.values()))):
+        print(guard, len([date for date in date_guards.keys() if date_guards[date] == guard]))
+        for minute in range(0, 60):
+            total_asleep = sum([1 for d in [date for date in date_guards.keys() if date_guards[date] == guard] if minute in minutes_asleep[d]])
+            if total_asleep > most_asleep:
+                most_asleep = total_asleep
+                sleepiest_minute = minute
+                sleepiest_guard = guard
+    print(sleepiest_guard, sleepiest_minute, most_asleep)
+    return sleepiest_minute * sleepiest_guard
+
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
-    [find_overlapping_claims, find_non_overlapping_claim]
+    [find_overlapping_claims, find_non_overlapping_claim],
+    [safest_minute_strat_one, safest_minute_strat_two]
 ]
 
 def get_solver(day, part):
