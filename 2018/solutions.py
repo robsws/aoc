@@ -113,12 +113,35 @@ def find_shortest_polymer(inputs):
             shortest_polymer_len = resolved_polymer_len
     return shortest_polymer_len
 
+def largest_area_of_isolation(inputs):
+    points = [tuple(map(int, line.split(', '))) for line in inputs]
+    min_x = min([point[0] for point in points])
+    max_x = max([point[0] for point in points])
+    min_y = min([point[1] for point in points])
+    max_y = max([point[1] for point in points])
+    closest_points = defaultdict(int)
+    infinite_points = set()
+    for x in range(min_x, max_x+1):
+        for y in range(min_y, max_y+1):
+            coord = (x, y)
+            distances = {}
+            for point in points:
+                distances[point] = manhattan_distance(coord, point)
+            if len([v for v in distances.values() if v == min(distances.values())]) > 1:
+                continue
+            closest_point = min(distances, key=distances.get)
+            if x in [min_x, max_x] or y in [min_y, max_y]:
+                infinite_points.add(closest_point)
+            closest_points[closest_point] += 1
+    return max([closest_points[k] for k in closest_points.keys() if k not in infinite_points])
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
     [find_overlapping_claims, find_non_overlapping_claim],
     ['',''],
-    [resolve_polymer, find_shortest_polymer]
+    [resolve_polymer, find_shortest_polymer],
+    [largest_area_of_isolation]
 ]
 
 def get_solver(day, part):
