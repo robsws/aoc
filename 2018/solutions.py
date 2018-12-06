@@ -86,10 +86,39 @@ def find_non_overlapping_claim(inputs):
             return ident
     return "No non-overlapping claim found."
 
+def resolve_polymer(inputs):
+    polymer = inputs[0]
+    regex = re.compile(r'Aa|Bb|Cc|Dd|Ee|Ff|Gg|Hh|Ii|Jj|Kk|Ll|Mm|Nn|Oo|Pp|Qq|Rr|Ss|Tt|Uu|Vv|Ww|Xx|Yy|Zz|aA|bB|cC|dD|eE|fF|gG|hH|iI|jJ|kK|lL|mM|nN|oO|pP|qQ|rR|sS|tT|uU|vV|wW|xX|yY|zZ')
+    next_polymer = re.sub(regex, '', polymer)
+    while(polymer != next_polymer):
+        polymer = next_polymer
+        next_polymer = re.sub(regex, '', polymer)
+    return len(polymer)
+
+def find_shortest_polymer(inputs):
+    starting_polymer = inputs[0]
+    shortest_polymer_len = 1000000
+    for char in 'abcdefghijklmnopqrstuvwxyz':
+        print(char)
+        polymer = starting_polymer
+        regex = re.compile(char+'|'+char.upper())
+        next_polymer = re.sub(regex, '', polymer)
+        while(polymer != next_polymer):
+            polymer = next_polymer
+            next_polymer = re.sub(regex, '', polymer)
+        print(len(starting_polymer), len(polymer))
+        resolved_polymer_len = resolve_polymer([polymer])
+        print(resolved_polymer_len)
+        if resolved_polymer_len < shortest_polymer_len:
+            shortest_polymer_len = resolved_polymer_len
+    return shortest_polymer_len
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
-    [find_overlapping_claims, find_non_overlapping_claim]
+    [find_overlapping_claims, find_non_overlapping_claim],
+    ['',''],
+    [resolve_polymer, find_shortest_polymer]
 ]
 
 def get_solver(day, part):
