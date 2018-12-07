@@ -135,13 +135,28 @@ def largest_area_of_isolation(inputs):
             closest_points[closest_point] += 1
     return max([closest_points[k] for k in closest_points.keys() if k not in infinite_points])
 
+def area_close_to_coords(inputs):
+    points = [tuple(map(int, line.split(', '))) for line in inputs]
+    min_x = min([point[0] for point in points])
+    max_x = max([point[0] for point in points])
+    min_y = min([point[1] for point in points])
+    max_y = max([point[1] for point in points])
+    area_size = 0
+    for x in range(min_x, max_x+1):
+        for y in range(min_y, max_y+1):
+            coord = (x, y)
+            distance_sum = sum([manhattan_distance(coord, point) for point in points])
+            if distance_sum < 10000:
+                area_size += 1
+    return area_size
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
     [find_overlapping_claims, find_non_overlapping_claim],
     ['',''],
     [resolve_polymer, find_shortest_polymer],
-    [largest_area_of_isolation]
+    [largest_area_of_isolation, area_close_to_coords]
 ]
 
 def get_solver(day, part):
