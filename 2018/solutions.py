@@ -205,13 +205,68 @@ def area_close_to_coords(inputs):
                 area_size += 1
     return area_size
 
+def order_steps(inputs):
+    regex = re.compile(r'Step (\w) must be finished before step (\w) can begin.')
+    next_steps = defaultdict(list)
+    dependencies = defaultdict(list)
+    for line in inputs:
+        (step, next_step) = re.match(regex, line).groups()
+        dependencies[next_step].append(step)
+        next_steps[step].append(next_step)
+    available_steps = [s for s in next_steps if s not in chain.from_iterable(next_steps.values())]
+    steps_str = ''
+    while len(available_steps) > 0:
+        available_steps.sort(reverse=True)
+        step = available_steps.pop()
+        steps_str += step
+        possible_next_steps = next_steps[step]
+        for next_step in possible_next_steps:
+            dependencies[next_step].remove(step)
+            if len(dependencies[next_step]) == 0:
+                available_steps.append(next_step)
+    return steps_str
+
+def time_to_construct_sleigh(inputs):
+    regex = re.compile(r'Step (\w) must be finished before step (\w) can begin.')
+    next_steps = defaultdict(list)
+    dependencies = defaultdict(list)
+    for line in inputs:
+        (step, next_step) = re.match(regex, line).groups()
+        dependencies[next_step].append(step)
+        next_steps[step].append(next_step)
+    available_steps = [s for s in next_steps if s not in chain.from_iterable(next_steps.values())]
+    t = 0
+    available_workers = 5
+    step_timers = dict()
+    while len(available_steps) > 0 or len(step_timers) > 0:
+        for step in step_timers:
+            step_timers[step] -= 1
+            if step_timers[step] == 0:
+                available_workers += 1
+                possible_next_steps = next_steps[step]
+                for next_step in possible_next_steps:
+                    dependencies[next_step].remove(step)
+                    if len(dependencies[next_step]) == 0:
+                        available_steps.append(next_step)
+        for step in [s for s in step_timers if step_timers[s] == 0]:
+            del step_timers[step]
+        while available_workers > 0 and len(available_steps) > 0:
+            available_steps.sort(reverse=True)
+            step = available_steps.pop()
+            step_timers[step] = ord(step) - 4
+            available_workers -= 1
+        t += 1
+    return t-1
+
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
     [find_overlapping_claims, find_non_overlapping_claim],
     [safest_minute_strat_one, safest_minute_strat_two],
     [resolve_polymer, find_shortest_polymer],
-    [largest_area_of_isolation, area_close_to_coords]
+    [largest_area_of_isolation, area_close_to_coords],
+    [order_steps, time_to_construct_sleigh]
 ]
 
 def get_solver(day, part):
