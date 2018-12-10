@@ -205,6 +205,7 @@ def area_close_to_coords(inputs):
                 area_size += 1
     return area_size
 
+# Day Seven Solutions
 def order_steps(inputs):
     regex = re.compile(r'Step (\w) must be finished before step (\w) can begin.')
     next_steps = defaultdict(list)
@@ -258,6 +259,45 @@ def time_to_construct_sleigh(inputs):
         t += 1
     return t-1
 
+# Day Eight Solutions
+def sum_tree_metadata(tree, pointer):
+    number_of_children = tree[pointer]
+    number_of_metadata = tree[pointer+1]
+    metadata_sum = 0
+    pointer += 2
+    for i in range(number_of_children):
+        (subtree_metadata_sum, pointer) = sum_tree_metadata(tree, pointer)
+        metadata_sum += subtree_metadata_sum
+    for i in range(number_of_metadata):
+        metadata_sum += tree[pointer]
+        pointer += 1
+    return (metadata_sum, pointer)
+
+def sum_all_tree_metadata(inputs):
+    number_list = list(map(int, inputs[0].split(' ')))
+    return sum_tree_metadata(number_list, 0)[0]
+
+def calculate_node_value(tree, pointer):
+    number_of_children = tree[pointer]
+    number_of_metadata = tree[pointer+1]
+    metadata_sum = 0
+    pointer += 2
+    subtree_values = dict()
+    value = 0
+    for i in range(number_of_children):
+        (subtree_value, pointer) = calculate_node_value(tree, pointer)
+        subtree_values[i+1] = subtree_value
+    for i in range(number_of_metadata):
+        if number_of_children == 0:
+            value += tree[pointer]
+        elif tree[pointer] in subtree_values:
+            value += subtree_values[tree[pointer]]
+        pointer += 1
+    return (value, pointer)
+
+def calculate_tree_value(inputs):
+    number_list = list(map(int, inputs[0].split(' ')))
+    return calculate_node_value(number_list, 0)[0]
 
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
@@ -266,7 +306,8 @@ solution_list = [
     [safest_minute_strat_one, safest_minute_strat_two],
     [resolve_polymer, find_shortest_polymer],
     [largest_area_of_isolation, area_close_to_coords],
-    [order_steps, time_to_construct_sleigh]
+    [order_steps, time_to_construct_sleigh],
+    [sum_all_tree_metadata, calculate_tree_value]
 ]
 
 def get_solver(day, part):
