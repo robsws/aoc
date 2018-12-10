@@ -139,12 +139,79 @@ def safest_minute_strat_two(inputs):
     print(sleepiest_guard, sleepiest_minute, most_asleep)
     return sleepiest_minute * sleepiest_guard
 
+# Day Five Solutions
+def resolve_polymer(inputs):
+    polymer = inputs[0]
+    regex = re.compile(r'Aa|Bb|Cc|Dd|Ee|Ff|Gg|Hh|Ii|Jj|Kk|Ll|Mm|Nn|Oo|Pp|Qq|Rr|Ss|Tt|Uu|Vv|Ww|Xx|Yy|Zz|aA|bB|cC|dD|eE|fF|gG|hH|iI|jJ|kK|lL|mM|nN|oO|pP|qQ|rR|sS|tT|uU|vV|wW|xX|yY|zZ')
+    next_polymer = re.sub(regex, '', polymer)
+    while(polymer != next_polymer):
+        polymer = next_polymer
+        next_polymer = re.sub(regex, '', polymer)
+    return len(polymer)
+
+def find_shortest_polymer(inputs):
+    starting_polymer = inputs[0]
+    shortest_polymer_len = 1000000
+    for char in 'abcdefghijklmnopqrstuvwxyz':
+        print(char)
+        polymer = starting_polymer
+        regex = re.compile(char+'|'+char.upper())
+        next_polymer = re.sub(regex, '', polymer)
+        while(polymer != next_polymer):
+            polymer = next_polymer
+            next_polymer = re.sub(regex, '', polymer)
+        print(len(starting_polymer), len(polymer))
+        resolved_polymer_len = resolve_polymer([polymer])
+        print(resolved_polymer_len)
+        if resolved_polymer_len < shortest_polymer_len:
+            shortest_polymer_len = resolved_polymer_len
+    return shortest_polymer_len
+
+# Day Six Solutions
+def largest_area_of_isolation(inputs):
+    points = [tuple(map(int, line.split(', '))) for line in inputs]
+    min_x = min([point[0] for point in points])
+    max_x = max([point[0] for point in points])
+    min_y = min([point[1] for point in points])
+    max_y = max([point[1] for point in points])
+    closest_points = defaultdict(int)
+    infinite_points = set()
+    for x in range(min_x, max_x+1):
+        for y in range(min_y, max_y+1):
+            coord = (x, y)
+            distances = {}
+            for point in points:
+                distances[point] = manhattan_distance(coord, point)
+            if len([v for v in distances.values() if v == min(distances.values())]) > 1:
+                continue
+            closest_point = min(distances, key=distances.get)
+            if x in [min_x, max_x] or y in [min_y, max_y]:
+                infinite_points.add(closest_point)
+            closest_points[closest_point] += 1
+    return max([closest_points[k] for k in closest_points.keys() if k not in infinite_points])
+
+def area_close_to_coords(inputs):
+    points = [tuple(map(int, line.split(', '))) for line in inputs]
+    min_x = min([point[0] for point in points])
+    max_x = max([point[0] for point in points])
+    min_y = min([point[1] for point in points])
+    max_y = max([point[1] for point in points])
+    area_size = 0
+    for x in range(min_x, max_x+1):
+        for y in range(min_y, max_y+1):
+            coord = (x, y)
+            distance_sum = sum([manhattan_distance(coord, point) for point in points])
+            if distance_sum < 10000:
+                area_size += 1
+    return area_size
 
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
     [find_overlapping_claims, find_non_overlapping_claim],
-    [safest_minute_strat_one, safest_minute_strat_two]
+    [safest_minute_strat_one, safest_minute_strat_two],
+    [resolve_polymer, find_shortest_polymer],
+    [largest_area_of_isolation, area_close_to_coords]
 ]
 
 def get_solver(day, part):
