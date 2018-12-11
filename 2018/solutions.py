@@ -300,27 +300,32 @@ def calculate_tree_value(inputs):
     return calculate_node_value(number_list, 0)[0]
 
 # Day Nine Solutions
-def winning_elfs_score(inputs):
+def winning_elfs_score(inputs, multiplier=1):
     regex = re.compile(r'(\d+) players; last marble is worth (\d+) points')
     (amount_of_players, last_marble) = map(int, re.match(regex, inputs[0]).groups())
+    last_marble *= multiplier
     players = defaultdict(int)
-    circle = [0]
-    current_marble_index = 0
+    circle = CircularList([0])
+    current_marble = 0
     next_marble = 1
     while(next_marble <= last_marble):
-        current_player = next_marble % amount_of_players
+        current_player = current_marble % amount_of_players
         if next_marble % 23 == 0:
             players[current_player] += next_marble
-            players[current_player] += circle.pop((current_marble_index-7) % len(circle))
-            current_marble_index = (current_marble_index-7) % (len(circle) - 1)
+            current_pos = circle.find(current_marble)
+            current_marble = circle.get(current_pos - 6)
+            players[current_player] += circle.get(current_pos - 7)
+            print(next_marble, circle.get(current_pos - 7), next_marble + circle.get(current_pos - 7))
+            circle.remove(circle.get(current_pos - 7))
         else:
-            circle.insert((current_marble_index+2) % len(circle), next_marble)
-            current_marble_index = (current_marble_index+2) % (len(circle) - 1)
+            circle.add(next_marble, circle.find(current_marble)+2)
+            current_marble = next_marble
         next_marble += 1
-        # print(current_marble_index)
-        # print(circle)
+        print(circle)
     return max(players.values())
 
+def winning_elfs_score_times_hundred(inputs):
+    return winning_elfs_score(inputs, 100)
 
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
@@ -331,7 +336,7 @@ solution_list = [
     [largest_area_of_isolation, area_close_to_coords],
     [order_steps, time_to_construct_sleigh],
     [sum_all_tree_metadata, calculate_tree_value],
-    [winning_elfs_score]
+    [winning_elfs_score, winning_elfs_score_times_hundred]
 ]
 
 def get_solver(day, part):
