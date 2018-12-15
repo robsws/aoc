@@ -328,6 +328,7 @@ def winning_elfs_score(inputs, multiplier=1):
 def winning_elfs_score_times_hundred(inputs):
     return winning_elfs_score(inputs, 100)
 
+# Day Ten Solutions
 class Star:
     def __init__(self, pos, vel):
         self.pos = pos
@@ -374,6 +375,40 @@ def display_star_message(inputs):
         # sleep(1)
     return 0
 
+# Day Eleven Solutions
+def fuel_cell_power_level(x, y, serial_no):
+    rack_id = x + 10
+    power_level = (rack_id * y + serial_no) * rack_id
+    return int(power_level/100) - int(power_level/1000)*10 - 5
+
+def largest_power_cluster_of_three(inputs):
+    serial_no = int(inputs[0])
+    grid = [[fuel_cell_power_level(x, y, serial_no) for x in range(300)] for y in range(300)]
+    highest_total = -10000
+    highest_total_pos = (-1, -1)
+    for x in range(300 - 3):
+        for y in range(300 - 3):
+            total = sum([sum(rack[x:x+3]) for rack in grid[y:y+3]])
+            if(total > highest_total):
+                highest_total = total
+                highest_total_pos = (x, y)
+    return highest_total_pos
+
+def largest_power_cluster(inputs):
+    serial_no = int(inputs[0])
+    grid = [[fuel_cell_power_level(x, y, serial_no) for x in range(300)] for y in range(300)]
+    highest_total = -1000000
+    highest_total_pos = (-1, -1, -1)
+    for s in range(300):
+        print(s)
+        for x in range(300 - s):
+            for y in range(300 - s):
+                total = sum([sum(rack[x:x+s]) for rack in grid[y:y+s]])
+                if(total > highest_total):
+                    highest_total = total
+                    highest_total_pos = (x, y, s)
+                    print(highest_total, highest_total_pos)
+    return highest_total_pos
 
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
@@ -385,7 +420,8 @@ solution_list = [
     [order_steps, time_to_construct_sleigh],
     [sum_all_tree_metadata, calculate_tree_value],
     [winning_elfs_score, winning_elfs_score_times_hundred],
-    [display_star_message, display_star_message]
+    [display_star_message, display_star_message],
+    [largest_power_cluster_of_three, largest_power_cluster],
 ]
 
 def get_solver(day, part):
