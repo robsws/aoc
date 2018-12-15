@@ -410,6 +410,39 @@ def largest_power_cluster(inputs):
                     print(highest_total, highest_total_pos)
     return highest_total_pos
 
+def sum_of_pot_ids_with_plants(inputs):
+    extra_pots_either_side = 30
+    first_line_regex = re.compile(r'initial state: ([#\.]+)')
+    rule_regex = re.compile(r'([#\.]{5}) => ([#\.])')
+    state = ['.']*extra_pots_either_side + list(re.match(first_line_regex, inputs.pop(0)).groups()[0]) + ['.']*extra_pots_either_side
+    inputs.pop(0)
+    rules = dict()
+    for line in inputs:
+        (state_str, output) = re.match(rule_regex, line).groups()
+        rules[tuple(state_str)] = output
+    for i in range(20):
+        next_state = ['.']*len(state)
+        for pot in range(2, len(state)-1):
+            neighbourhood = tuple(state[pot-2:pot+3])
+            if neighbourhood not in rules:
+                next_state[pot] = '.'
+            else:
+                next_state[pot] = rules[tuple(state[pot-2:pot+3])]
+        state = next_state
+    return sum([i-50 for i, pot in enumerate(state) if pot == '#'])
+
+def sum_of_pot_ids_with_plants_at_end_of_time(inputs):
+    # after a certain number of iterations (about 117), the pattern repeats the same every time
+    # except offset by one each time.
+    # the offset is current iteration minus 48
+    repeating_pattern = '#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#..##.#'
+    total = 0
+    fifty_billion = 50000000000
+    for i, j in enumerate(range(fifty_billion-48, fifty_billion-48+len(repeating_pattern))):
+        if repeating_pattern[i] == '#':
+            total += j
+    print(total)
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
@@ -422,6 +455,7 @@ solution_list = [
     [winning_elfs_score, winning_elfs_score_times_hundred],
     [display_star_message, display_star_message],
     [largest_power_cluster_of_three, largest_power_cluster],
+    [sum_of_pot_ids_with_plants, sum_of_pot_ids_with_plants_at_end_of_time]
 ]
 
 def get_solver(day, part):
