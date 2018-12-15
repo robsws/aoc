@@ -1,6 +1,7 @@
 from utils import *
 from collections import defaultdict
 from itertools import chain
+from time import sleep
 import re
 
 # Day One Solutions
@@ -315,7 +316,7 @@ def winning_elfs_score(inputs, multiplier=1):
             current_pos = circle.find(current_marble)
             current_marble = circle.get(current_pos - 6)
             players[current_player] += circle.get(current_pos - 7)
-            print(next_marble, circle.get(current_pos - 7), next_marble + circle.get(current_pos - 7))
+            # print(next_marble, circle.get(current_pos - 7), next_marble + circle.get(current_pos - 7), current_marble)
             circle.remove(circle.get(current_pos - 7))
         else:
             circle.add(next_marble, circle.find(current_marble)+2)
@@ -327,6 +328,53 @@ def winning_elfs_score(inputs, multiplier=1):
 def winning_elfs_score_times_hundred(inputs):
     return winning_elfs_score(inputs, 100)
 
+class Star:
+    def __init__(self, pos, vel):
+        self.pos = pos
+        self.vel = vel
+
+    def move(self):
+        self.pos[0] += self.vel[0]
+        self.pos[1] += self.vel[1]
+
+def print_stars(stars, i):
+    positions = [star.pos for star in stars]
+    minx = min([p[0] for p in positions])
+    miny = min([p[1] for p in positions])
+    offset = (abs(minx),abs(miny))
+    offset_positions = [(p[0]+offset[0],p[1]+offset[1]) for p in positions]
+    maxx = max([p[0] for p in offset_positions])+1
+    maxy = max([p[1] for p in offset_positions])+1
+    closeness = sum([manhattan_distance(offset_positions[0], p) for p in offset_positions])
+    # print(closeness)
+    if(closeness < 8000):
+        print(i)
+        for y in range(maxy):
+            line = ''
+            for x in range(maxx):
+                if (x, y) in offset_positions:
+                    line += '#'
+                else:
+                    line += '.'
+            print(line)
+        print()
+
+def display_star_message(inputs):
+    regex = re.compile(r'^position=<\s*([-+]?\d+),\s*([-+]?\d+)>\s*velocity=<\s*([-+]?\d+),\s*([-+]?\d+)>')
+    stars = []
+    for line in inputs:
+        (posx, posy, velx, vely) = map(int, re.match(regex, line).groups())
+        stars.append(Star([posx, posy],[velx, vely]))
+    for i in range(50000):
+        if(i % 1000 == 0):
+            print(i)
+        print_stars(stars, i)
+        for star in stars:
+            star.move()
+        # sleep(1)
+    return 0
+
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
@@ -336,7 +384,8 @@ solution_list = [
     [largest_area_of_isolation, area_close_to_coords],
     [order_steps, time_to_construct_sleigh],
     [sum_all_tree_metadata, calculate_tree_value],
-    [winning_elfs_score, winning_elfs_score_times_hundred]
+    [winning_elfs_score, winning_elfs_score_times_hundred],
+    [display_star_message, display_star_message]
 ]
 
 def get_solver(day, part):
