@@ -2,6 +2,7 @@ from utils import *
 from collections import defaultdict
 from itertools import chain
 from time import sleep
+from copy import deepcopy
 import re
 
 # Day One Solutions
@@ -443,6 +444,58 @@ def sum_of_pot_ids_with_plants_at_end_of_time(inputs):
             total += j
     print(total)
 
+# Day 16 Solutions
+operations = {
+    12: lambda r,a,b: r[a] + r[b],              #addr
+     2: lambda r,a,b: r[a] + b,                 #addi
+    14: lambda r,a,b: r[a] * r[b],              #mulr
+     0: lambda r,a,b: r[a] * b,                 #muli
+    15: lambda r,a,b: r[a] & r[b],              #banr
+     1: lambda r,a,b: r[a] & b,                 #bani
+    11: lambda r,a,b: r[a] | r[b],              #borr
+     7: lambda r,a,b: r[a] | b,                 #bori
+     6: lambda r,a,b: r[a],                     #setr
+     3: lambda r,a,b: a,                        #seti
+    10: lambda r,a,b: 1 if a > r[b] else 0,     #gtir
+     8: lambda r,a,b: 1 if r[a] > b else 0,     #gtri
+    13: lambda r,a,b: 1 if r[a] > r[b] else 0,  #gtrr
+     5: lambda r,a,b: 1 if a == r[b] else 0,    #eqir
+     9: lambda r,a,b: 1 if r[a] == b else 0,    #eqri
+     4: lambda r,a,b: 1 if r[a] == r[b] else 0, #eqrr
+}
+
+def samples_fit_three_or_more_opcodes(inputs):
+    sample_before_regex = re.compile(r'Before: \[(\d+), (\d+), (\d+), (\d+)\]')
+    sample_command_regex = re.compile(r'(\d+) (\d+) (\d+) (\d+)')
+    sample_after_regex = re.compile(r'After:  \[(\d+), (\d+), (\d+), (\d+)\]')
+    i = 0
+    total = 0
+    while i < len(inputs):
+        if not re.match(sample_before_regex, inputs[i]):
+            break
+        state_before = list(map(int, re.match(sample_before_regex, inputs[i]).groups()))
+        command = list(map(int, re.match(sample_command_regex, inputs[i+1]).groups()))
+        state_after = list(map(int, re.match(sample_after_regex, inputs[i+2]).groups()))
+        possible_ops = 0
+        for op in operations:
+            state = deepcopy(state_before)
+            state[command[3]] = operations[op](state,command[1],command[2])
+            if state == state_after:
+                possible_ops += 1
+        if possible_ops >= 3:
+            total += 1
+        i += 4
+    return total
+
+def run_test_program(inputs):
+    sample_command_regex = re.compile(r'(\d+) (\d+) (\d+) (\d+)')
+    start = [i for i in range(len(inputs)) if inputs[i:i+3] == ['','','']][0] + 3
+    registers = [0,0,0,0]
+    for i in range(start, len(inputs)):
+        (opcode, input_a, input_b, output) = list(map(int, re.match(sample_command_regex, inputs[i]).groups()))
+        registers[output] = operations[opcode](registers, input_a, input_b)
+    return(registers[0])
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
@@ -455,7 +508,11 @@ solution_list = [
     [winning_elfs_score, winning_elfs_score_times_hundred],
     [display_star_message, display_star_message],
     [largest_power_cluster_of_three, largest_power_cluster],
-    [sum_of_pot_ids_with_plants, sum_of_pot_ids_with_plants_at_end_of_time]
+    [sum_of_pot_ids_with_plants, sum_of_pot_ids_with_plants_at_end_of_time],
+    ['',''],
+    ['',''],
+    ['',''],
+    [samples_fit_three_or_more_opcodes, run_test_program],
 ]
 
 def get_solver(day, part):
