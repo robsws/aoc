@@ -646,9 +646,9 @@ def get_conflict_outcome(inputs):
                 dynamic_grid[y][x] = Unit(kind=UnitType.ELF)
     # Simulate rounds
     i = 0
-    (dynamic_grid, ended) = simulate_round(static_grid, dynamic_grid))
+    (dynamic_grid, ended) = simulate_round(static_grid, dynamic_grid)
     while not ended:
-        (dynamic_grid, ended) = simulate_round(static_grid, dynamic_grid))
+        (dynamic_grid, ended) = simulate_round(static_grid, dynamic_grid)
         i += 1
     # Calculate outcome
     hp_left = sum([unit.hp for unit in chain.from_iterable(dynamic_grid) if unit is not None])
@@ -719,7 +719,76 @@ def amount_of_wet_sand(inputs):
             h_lines.append(list(map(int, re.match(h_regex, line).groups())))
         else:
             print('invalid rule')
-    
+
+# Day Eighteen Solutions
+def get_surrounding_elements(grid, x, y):
+    elements = []
+    if y > 0:
+        # top row
+        if x > 0:
+            # left column
+            elements.append(grid[y-1][x-1])
+        if x < len(grid[0])-1:
+            # right column
+            elements.append(grid[y-1][x+1])
+        # middle column
+        elements.append(grid[y-1][x])
+    if y < len(grid)-1:
+        # bottom row
+        if x > 0:
+            # left column
+            elements.append(grid[y+1][x-1])
+        if x < len(grid[0])-1:
+            # right column
+            elements.append(grid[y+1][x+1])
+        # middle column
+        elements.append(grid[y+1][x])
+    # middle row
+    if x > 0:
+        # left column
+        elements.append(grid[y][x-1])
+    if x < len(grid[0])-1:
+        # right column
+        elements.append(grid[y][x+1])
+    return elements
+
+def print_iteration_info(i, grid):
+    # print(i,'-')
+    # print_grid(grid)
+    number_of_trees = sum([1 for acre in chain.from_iterable(grid) if acre == '|'])
+    number_of_lumber = sum([1 for acre in chain.from_iterable(grid) if acre == '#'])
+    print(i, number_of_lumber * number_of_trees)
+    # print()
+
+def total_resource_value(inputs, iterations=10):
+    grid = []
+    for line in inputs:
+        grid.append(list(line))
+    print_iteration_info(0, grid)
+    for i in range(iterations):
+        next_grid = deepcopy(grid)
+        for y in range(len(grid)):
+            for x in range(len(grid[0])):
+                surrounding = get_surrounding_elements(grid, x, y)
+                amount_of_trees = sum([1 for acre in surrounding if acre == '|'])
+                amount_of_lumber = sum([1 for acre in surrounding if acre == '#'])
+                if grid[y][x] == '.' and amount_of_trees >= 3:
+                    next_grid[y][x] = '|'
+                elif grid[y][x] == '|' and amount_of_lumber >= 3:
+                    next_grid[y][x] = '#'
+                elif grid[y][x] == '#' and (amount_of_trees == 0 or amount_of_lumber == 0):
+                    next_grid[y][x] = '.'
+        grid = next_grid
+        print_iteration_info(i, grid)
+
+    # Calculate resource value
+    number_of_trees = sum([1 for acre in chain.from_iterable(grid) if acre == '|'])
+    number_of_lumber = sum([1 for acre in chain.from_iterable(grid) if acre == '#'])
+    return number_of_lumber * number_of_trees
+
+def total_resource_value_after_one_billion(inputs):
+    return total_resource_value(inputs, iterations=1000000000)
+    # Observed loop after 416 iterations and calculated value for iteration 1 billion
 
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
@@ -738,7 +807,8 @@ solution_list = [
     [recipe_scores_after_n, recipe_scores_before_sequence],
     [get_conflict_outcome],
     [samples_fit_three_or_more_opcodes, run_test_program],
-    [amount_of_wet_sand]
+    [amount_of_wet_sand],
+    [total_resource_value, total_resource_value_after_one_billion]
 ]
 
 def get_solver(day, part):
