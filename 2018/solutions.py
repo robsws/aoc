@@ -3,6 +3,7 @@ from collections import defaultdict
 from itertools import chain
 from time import sleep
 from copy import deepcopy
+from enum import Enum
 import re
 
 # Day One Solutions
@@ -444,6 +445,61 @@ def sum_of_pot_ids_with_plants_at_end_of_time(inputs):
             total += j
     print(total)
 
+# Day 15 Solutions
+class UnitType(Enum):
+    ELF = 1
+    GOBLIN = 2
+
+class Unit:
+    def __init__(self, hp=200, ap=3, kind=UnitType.ELF):
+        self.hp = hp
+        self.ap = ap
+        self.kind = kind
+    def __str__(self):
+        if self.kind == UnitType.ELF:
+            return 'E'
+        else:
+            return 'G'
+
+class Tile(Enum):
+    SPACE = 1
+    WALL = 2
+
+tile_chars = {
+    '.': Tile.SPACE,
+    '#': Tile.WALL,
+    'G': Tile.SPACE,
+    'E': Tile.SPACE
+}
+
+def simulate_round(static_grid, dynamic_grid):
+    for y in range(len(dynamic_grid)):
+        for x in range(len(dynamic_grid[0])):
+            if dynamic_grid[y][x] is not None:
+                print('')
+
+def get_conflict_outcome(inputs):
+    # Load the grid into memory
+    static_grid = []
+    dynamic_grid = [[None] * len(inputs[0]) for i in range(len(inputs))]
+    for y, line in enumerate(inputs):
+        row = list(line)
+        static_grid.append(list(map(lambda x: tile_chars[x], row)))
+        for x, char in enumerate(row):
+            if char == 'G':
+                dynamic_grid[y][x] = Unit(kind=UnitType.GOBLIN)
+            elif char == 'E':
+                dynamic_grid[y][x] = Unit(kind=UnitType.ELF)
+    # Simulate rounds
+    i = 0
+    (dynamic_grid, ended) = simulate_round(static_grid, dynamic_grid))
+    while not ended:
+        (dynamic_grid, ended) = simulate_round(static_grid, dynamic_grid))
+        i += 1
+    # Calculate outcome
+    hp_left = sum([unit.hp for unit in chain.from_iterable(dynamic_grid) if unit is not None])
+    return i * hp_left
+
 # Day 16 Solutions
 operations = {
     12: lambda r,a,b: r[a] + r[b],              #addr
@@ -511,7 +567,7 @@ solution_list = [
     [sum_of_pot_ids_with_plants, sum_of_pot_ids_with_plants_at_end_of_time],
     ['',''],
     ['',''],
-    ['',''],
+    [get_conflict_outcome,''],
     [samples_fit_three_or_more_opcodes, run_test_program],
 ]
 
