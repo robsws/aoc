@@ -649,6 +649,20 @@ def run_test_program(inputs):
         registers[output] = operations[opcode](registers, input_a, input_b)
     return(registers[0])
 
+def amount_of_wet_sand(inputs):
+    v_regex = re.compile(r'x=(\d+), y=(\d+)..(\d+)')
+    h_regex = re.compile(r'y=(\d+), x=(\d+)..(\d+)')
+    v_lines = []
+    h_lines = []
+    for line in inputs:
+        if re.match(v_regex, line):
+            v_lines.append(list(map(int, re.match(v_regex, line).groups())))
+        elif re.match(h_regex, line):
+            h_lines.append(list(map(int, re.match(h_regex, line).groups())))
+        else:
+            print('invalid rule')
+    
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
@@ -666,6 +680,7 @@ solution_list = [
     [recipe_scores_after_n, recipe_scores_before_sequence],
     ['',''],
     [samples_fit_three_or_more_opcodes, run_test_program],
+    [amount_of_wet_sand]
 ]
 
 def get_solver(day, part):
