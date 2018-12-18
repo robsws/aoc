@@ -557,6 +557,46 @@ def last_cart_standing(inputs):
             carts.remove(cart)
     return (carts[0]['x'], carts[0]['y'])
 
+# Day Fourteen Solutions
+def recipe_scores_after_n(inputs):
+    n = int(inputs[0])
+    scores = [3, 7]
+    elves = [0, 1]
+    while len(scores) < n + 10:
+        # print('scores', scores)
+        # print('elves', elves)
+        total = scores[elves[0]] + scores[elves[1]]
+        tens = int(total/10)
+        units = total - tens*10
+        if tens != 0:
+            scores.append(tens)
+        scores.append(units)
+        for e in range(len(elves)):
+            elves[e] = (elves[e] + scores[elves[e]] + 1) % len(scores)
+    return ''.join(map(str, scores[n:n+10]))
+
+def recipe_scores_before_sequence(inputs):
+    seq = list(map(int, list(inputs[0])))
+    scores = [3, 7]
+    elves = [0, 1]
+    recipes_to_left = 0
+    while recipes_to_left == 0:
+        total = scores[elves[0]] + scores[elves[1]]
+        tens = int(total/10)
+        units = total - tens*10
+        if tens != 0:
+            scores.append(tens)
+            if scores[-len(seq):] == seq:
+                recipes_to_left = len(scores) - len(seq)
+                break
+        scores.append(units)
+        if scores[-len(seq):] == seq:
+            recipes_to_left = len(scores) - len(seq)
+            break
+        for e in range(len(elves)):
+            elves[e] = (elves[e] + scores[elves[e]] + 1) % len(scores)
+    return recipes_to_left
+
 # Day Sixteen Solutions
 operations = {
     12: lambda r,a,b: r[a] + r[b],              #addr
@@ -623,7 +663,7 @@ solution_list = [
     [largest_power_cluster_of_three, largest_power_cluster],
     [sum_of_pot_ids_with_plants, sum_of_pot_ids_with_plants_at_end_of_time],
     [first_collision_location, last_cart_standing],
-    ['',''],
+    [recipe_scores_after_n, recipe_scores_before_sequence],
     ['',''],
     [samples_fit_three_or_more_opcodes, run_test_program],
 ]
