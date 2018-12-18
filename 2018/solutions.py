@@ -4,6 +4,7 @@ from itertools import chain
 from time import sleep
 from copy import deepcopy
 from enum import Enum
+import random
 import re
 
 # Day One Solutions
@@ -719,6 +720,72 @@ def amount_of_wet_sand(inputs):
             h_lines.append(list(map(int, re.match(h_regex, line).groups())))
         else:
             print('invalid rule')
+    max_x = max(list(chain([line[0] for line in v_lines],[line[2] for line in h_lines]))) + 1
+    max_y = max(list(chain([line[2] for line in v_lines],[line[0] for line in h_lines]))) + 1
+    grid = [['.'] * max_x for y in range(max_y+1)]
+    # Draw the lines from the input
+    for h_line in h_lines:
+        for x in range(h_line[1], h_line[2]+1):
+            grid[h_line[0]][x] = '#'
+    for v_line in v_lines:
+        for y in range(v_line[1], v_line[2]+1):
+            grid[y][v_line[0]] = '#'
+    prev_pos = {'x': 500, 'y': 1}
+    grid[prev_pos['y']][prev_pos['x']] = '|'
+    for i in range(1000):
+        if i % 100 == 0:
+            print(i)
+        # Generate a water particle and move it as far as it can go
+        pos = prev_pos
+        way = random.choice([1, -1])
+        hit_ground_this_turn = False
+        iter_for_particle = 0
+        while True:
+            iter_for_particle += 1
+            prev_pos = deepcopy(pos)
+            # Record the wet sand
+            if pos['y'] < max_y:
+                grid[pos['y']][pos['x']] = '|'
+            else:
+                # Stop once the particle goes out of bounds
+                break
+            # Check if the particle can go down
+            if grid[pos['y']+1][pos['x']] == '#' or grid[pos['y']+1][pos['x']] == '~':
+                if not hit_ground_this_turn:
+                    hit_ground_this_turn = True
+                    way = random.choice([1, -1])
+                # check if particle is now captured
+                left_block_x = -1
+                right_block_x = -1
+                for x in reversed(range(0, pos['x'])):
+                    if grid[pos['y']][x] == '~' or grid[pos['y']][x] == '#':
+                        left_block_x = x
+                        break
+                for x in range(pos['x'], len(grid[0])):
+                    if grid[pos['y']][x] == '~' or grid[pos['y']][x] == '#':
+                        right_block_x = x
+                        break
+                if not (left_block_x == -1 or right_block_x == -1):
+                    # particle is flanked by solid tiles
+                    if all([tile == '~' or tile == '#' for tile in grid[pos['y']+1][left_block_x+1:right_block_x]]):
+                        # solid floor all the way between flanking solid tiles, so have to stop
+                        for x in range(left_block_x+1, right_block_x):
+                            grid[pos['y']][x] = '~'
+                        break
+                # turn around if a wall is hit
+                if grid[pos['y']][pos['x']+way] == '~' or grid[pos['y']][pos['x']+way] == '#':
+                    way *= -1
+                # go forward
+                pos['x'] += way
+                hit_ground_this_turn = False
+            else:
+                # go down if possible
+                pos['y'] += 1
+            # print(pos)
+        print(iter_for_particle)
+    # Calculate amount of wet tiles
+    print_grid([row[300:640] for row in grid])
+    return sum([1 for tile in chain.from_iterable(grid) if tile == '|' or tile == '~'])
 
 # Day Eighteen Solutions
 def get_surrounding_elements(grid, x, y):
