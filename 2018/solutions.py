@@ -412,6 +412,7 @@ def largest_power_cluster(inputs):
                     print(highest_total, highest_total_pos)
     return highest_total_pos
 
+# Day Twelve Solutions
 def sum_of_pot_ids_with_plants(inputs):
     extra_pots_either_side = 30
     first_line_regex = re.compile(r'initial state: ([#\.]+)')
@@ -445,7 +446,160 @@ def sum_of_pot_ids_with_plants_at_end_of_time(inputs):
             total += j
     print(total)
 
-# Day 15 Solutions
+# Day Thirteen Solutions
+dir_map = {
+    '^': (0, -1),
+    '>': (1, 0),
+    '<': (-1, 0),
+    'v': (0, 1),
+}
+
+turn_right = {
+    (0, -1): (1, 0),
+    (1, 0): (0, 1),
+    (-1, 0): (0, -1),
+    (0, 1): (-1, 0),
+}
+
+turn_left = {
+    (0, -1): (-1, 0),
+    (1, 0): (0, -1),
+    (-1, 0): (0, 1),
+    (0, 1): (1, 0),
+}
+
+cart_turn_seq = [
+    lambda x: turn_left[x],
+    lambda x: x,
+    lambda x: turn_right[x]
+]
+
+def first_collision_location(inputs):
+    # Gather information from input
+    grid = []
+    for line in inputs:
+        grid.append(list(line))
+    carts = []
+    for y in range(len(grid)):
+        for x in range(len(grid[0])):
+            if grid[y][x] in dir_map:
+                carts.append({'x':x, 'y':y, 'dir':dir_map[grid[y][x]], 'turns':0, 'id':len(carts)})
+                grid[y][x] = '|'
+    # Run the simulation
+    collision_location = (-1, -1)
+    while collision_location == (-1, -1):
+        for cart in carts:
+            (next_x, next_y) = vadd((cart['x'], cart['y']), cart['dir'])
+            cart['x'] = next_x
+            cart['y'] = next_y
+            # Check for collision
+            for other_cart in carts:
+                if cart['x'] == other_cart['x'] and cart['y'] == other_cart['y'] and cart['id'] != other_cart['id']:
+                    collision_location = (next_x, next_y)
+                    break
+            # Turn 90 degrees if at a curve
+            if grid[next_y][next_x] == '\\':
+                if cart['dir'][0] != 0:
+                    cart['dir'] = turn_right[cart['dir']]
+                else:
+                    cart['dir'] = turn_left[cart['dir']]
+            elif grid[next_y][next_x] == '/':
+                if cart['dir'][0] != 0:
+                    cart['dir'] = turn_left[cart['dir']]
+                else:
+                    cart['dir'] = turn_right[cart['dir']]
+            # Turn next direction in sequence at intersection
+            elif grid[next_y][next_x] == '+':
+                cart['dir'] = cart_turn_seq[cart['turns']%len(cart_turn_seq)](cart['dir'])
+                cart['turns'] += 1
+    return collision_location
+
+def last_cart_standing(inputs):
+    # Gather information from input
+    grid = []
+    for line in inputs:
+        grid.append(list(line))
+    carts = []
+    for y in range(len(grid)):
+        for x in range(len(grid[0])):
+            if grid[y][x] in dir_map:
+                carts.append({'x':x, 'y':y, 'dir':dir_map[grid[y][x]], 'turns':0, 'id':len(carts)})
+                grid[y][x] = '|'
+    # Run the simulation
+    collision_location = (-1, -1)
+    while len(carts) > 1:
+        carts.sort(key=lambda cart: (cart['y'],cart['x']))
+        to_remove = []
+        for cart in carts:
+            (next_x, next_y) = vadd((cart['x'], cart['y']), cart['dir'])
+            cart['x'] = next_x
+            cart['y'] = next_y
+            # Check for collision
+            for other_cart in [c for c in carts if c not in to_remove]:
+                if cart['x'] == other_cart['x'] and cart['y'] == other_cart['y'] and cart['id'] != other_cart['id']:
+                    to_remove.append(cart)
+                    to_remove.append(other_cart)
+            # Turn 90 degrees if at a curve
+            if grid[next_y][next_x] == '\\':
+                if cart['dir'][0] != 0:
+                    cart['dir'] = turn_right[cart['dir']]
+                else:
+                    cart['dir'] = turn_left[cart['dir']]
+            elif grid[next_y][next_x] == '/':
+                if cart['dir'][0] != 0:
+                    cart['dir'] = turn_left[cart['dir']]
+                else:
+                    cart['dir'] = turn_right[cart['dir']]
+            # Turn next direction in sequence at intersection
+            elif grid[next_y][next_x] == '+':
+                cart['dir'] = cart_turn_seq[cart['turns']%len(cart_turn_seq)](cart['dir'])
+                cart['turns'] += 1
+        for cart in to_remove:
+            carts.remove(cart)
+    return (carts[0]['x'], carts[0]['y'])
+
+# Day Fourteen Solutions
+def recipe_scores_after_n(inputs):
+    n = int(inputs[0])
+    scores = [3, 7]
+    elves = [0, 1]
+    while len(scores) < n + 10:
+        # print('scores', scores)
+        # print('elves', elves)
+        total = scores[elves[0]] + scores[elves[1]]
+        tens = int(total/10)
+        units = total - tens*10
+        if tens != 0:
+            scores.append(tens)
+        scores.append(units)
+        for e in range(len(elves)):
+            elves[e] = (elves[e] + scores[elves[e]] + 1) % len(scores)
+    return ''.join(map(str, scores[n:n+10]))
+
+def recipe_scores_before_sequence(inputs):
+    seq = list(map(int, list(inputs[0])))
+    scores = [3, 7]
+    elves = [0, 1]
+    recipes_to_left = 0
+    while recipes_to_left == 0:
+        total = scores[elves[0]] + scores[elves[1]]
+        tens = int(total/10)
+        units = total - tens*10
+        if tens != 0:
+            scores.append(tens)
+            if scores[-len(seq):] == seq:
+                recipes_to_left = len(scores) - len(seq)
+                break
+        scores.append(units)
+        if scores[-len(seq):] == seq:
+            recipes_to_left = len(scores) - len(seq)
+            break
+        for e in range(len(elves)):
+            elves[e] = (elves[e] + scores[elves[e]] + 1) % len(scores)
+    return recipes_to_left
+
+
+# Day Fifteen Solutions
 class UnitType(Enum):
     ELF = 1
     GOBLIN = 2
@@ -500,7 +654,7 @@ def get_conflict_outcome(inputs):
     hp_left = sum([unit.hp for unit in chain.from_iterable(dynamic_grid) if unit is not None])
     return i * hp_left
 
-# Day 16 Solutions
+# Day Sixteen Solutions
 operations = {
     12: lambda r,a,b: r[a] + r[b],              #addr
      2: lambda r,a,b: r[a] + b,                 #addi
@@ -552,6 +706,21 @@ def run_test_program(inputs):
         registers[output] = operations[opcode](registers, input_a, input_b)
     return(registers[0])
 
+# Day Seventeen Solutions
+def amount_of_wet_sand(inputs):
+    v_regex = re.compile(r'x=(\d+), y=(\d+)..(\d+)')
+    h_regex = re.compile(r'y=(\d+), x=(\d+)..(\d+)')
+    v_lines = []
+    h_lines = []
+    for line in inputs:
+        if re.match(v_regex, line):
+            v_lines.append(list(map(int, re.match(v_regex, line).groups())))
+        elif re.match(h_regex, line):
+            h_lines.append(list(map(int, re.match(h_regex, line).groups())))
+        else:
+            print('invalid rule')
+    
+
 solution_list = [
     [sum_frequencies, first_frequency_reached_twice],
     [box_checksum, find_correct_boxes],
@@ -565,10 +734,11 @@ solution_list = [
     [display_star_message, display_star_message],
     [largest_power_cluster_of_three, largest_power_cluster],
     [sum_of_pot_ids_with_plants, sum_of_pot_ids_with_plants_at_end_of_time],
-    ['',''],
-    ['',''],
-    [get_conflict_outcome,''],
+    [first_collision_location, last_cart_standing],
+    [recipe_scores_after_n, recipe_scores_before_sequence],
+    [get_conflict_outcome],
     [samples_fit_three_or_more_opcodes, run_test_program],
+    [amount_of_wet_sand]
 ]
 
 def get_solver(day, part):

@@ -1,7 +1,6 @@
 import os
 
 def print_grid(grid):
-    print(grid)
     for row in grid:
         print(''.join(map(str, row)))
 
@@ -31,3 +30,5 @@ class CircularList:
     def get(self, pos):
         return self.l[pos % len(self.l)]
 
+def vadd(vec1, vec2):
+    return (sum(x) for x in zip(vec1, vec2))
